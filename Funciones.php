@@ -1,5 +1,5 @@
 <?php
-
+$connection= mysqli_connect('localhost','root','','blog');
 /* Se necesitan las siguientes funciones
 1. Lista de las ultimas publicaciones 7
 2. Lista de todas las publicaciones  7
@@ -9,25 +9,30 @@
 6. Funcion de login (Con errores) 7
 7. funcion de registrarse (Con errores) 7
 8. generador visual de la entrada
-Además, debemos integrar las imagenes a partir de php/html
+Además, debemos integrar las imagenes a partir de php/html (ya se pueden abrir las fotos)
 */
 
-function obtener_entradas($id=false,$limit=false,$busqueda=false){
+function obtener_entradas($id=false,$limit=false,$busqueda=false,$categoria=false){
     GLOBAL $connection;
     if($connection){
         $query="SELECT * FROM entradas";
 
-        if($busqueda!==false && is_string($busqueda)){  //BUSQUEDA POR TITULO
+        if($busqueda!==false && is_string($busqueda) && $categoria==false){  //BUSQUEDA POR TITULO
             $query.=" WHERE titulo LIKE '%$busqueda%'";
         }
 
-        if($limit!==false && $id==false){  //APLICACION DE LIMITE
-            $query.=" LIMIT $limit";
+        if($id==false && $busqueda==false && is_string($categoria)){ //BUSQUEDA POR CATEGORIA   
+            $query.=" WHERE categorias LIKE '%$categoria%' ";
         }
 
-        if($id!==false && $limit==false){  //BUSQUEDA POR ID
+        if($id!==false && $limit==false && $categoria==false){  //BUSQUEDA POR ID
             $query.=" WHERE id=$id";
         }
+        
+        if($limit!==false && $id==false && $categoria==false){  //APLICACION DE LIMITE
+            $query.=" LIMIT $limit";
+        }
+        
         $result=mysqli_query($connection,$query);
         
     }else{$result=false;}
@@ -46,9 +51,9 @@ $errores con array de errores durante la validación en el registro: array, 3 in
 
 EN CASO DE QUE SE NECESITE SEPARARLAS POR PRACTICIDAD, ES IMPORTANTE DEJAR EL VERIFY DE CONECCION EN AMBOS
 Y AQUELLAS PARTES QUE COMPARTEN. EL RESTO DEL CODIGO FUNCIONA BIEN INCLUSO POR SEPARADO
-*/ 
+**/ 
 
-function registro_login($nombre=false,$mail,$contrasena){ //Esta funcion deberia funcionar para ambos casos
+function registro_login($mail,$contrasena,$nombre=false){ //Esta funcion deberia funcionar para ambos casos
     GLOBAL $connection;
     $errores=false;
     if($connection){ 
@@ -116,7 +121,8 @@ function registro_login($nombre=false,$mail,$contrasena){ //Esta funcion deberia
 /* ESTA FUNCIÓN PUEDE REGRESAR DOS VALORES POSIBLES:
 UN STRING SI SALE BIEN LA OPERACIÓN (EN $RESULT)
 O UN ARRAY CON LOS ERRORES */
-function crear_entrada($titulo,$contenido,$img_url,$usuario_id,$categorias){
+function crear_entrada($titulo,$contenido,$img,$usuario_id,$categorias){
+   
     //CONECCION 
     GLOBAL $connection;
     //array entrada
@@ -124,21 +130,79 @@ function crear_entrada($titulo,$contenido,$img_url,$usuario_id,$categorias){
     $errores=[];
     $titulo=trim($titulo);
     $contenido=trim($contenido);
-    $img_url=trim($img_url);
     //VALIDACION DE LOS DATOS
     if($connection){  //verificación de la conección
         if($categorias){$entrada[]=$categorias;}else{$errores[]="categoria";} //asignación de los valores y revisión
         if($usuario_id){$entrada[]=$usuario_id;}else{$errores[]="usuario_id";}
         if(strlen($titulo)<200 && preg_match("/[a-z A-Z0-9._-]/",$titulo)){$entrada[]=$titulo;}else{$errores[]="titulo";}
         if(is_string($contenido)){$entrada[]=$contenido;}else{$errores[]="contenido";}
-        if(filter_var($img_url,FILTER_VALIDATE_URL)){$entrada[]=$img_url;}else{$errores="img_url";}
-    }
+        
+        if(!empty($img) && is_dir('img_blog') ){
+            $img_name=$img['name'];
+            //$img_type=substr($img['type'],6);
+            $img_url="img_blog/$img_name";
+            move_uploaded_file($img['tmp_name'],$img_url);
+            $entrada[]=$img_url;
+        }else{$errores[]="imagen";}
+        }
+        
     if(is_array($entrada) && count($errores)==0 && count($entrada)==5 && $titulo!==false && $contenido!==false && $img_url!==false){ //last if
-        $query="INSERT INTO entradas VALUES(NULL,$entrada[0],$entrada[1],$entrada[2],$entrada[3],$entrada[4])"; //query
+       
+      
+        //$u_id=settype($u_id,'int');
+       
+   
+        $query="INSERT INTO entradas VALUES(NULL,'$entrada[0]','$entrada[1]','$entrada[2]','$entrada[3]','$entrada[4]',CURDATE())"; //query
         $query=mysqli_query($connection,$query); //ejecución de la query
         $result = ($query==true) ? "Entrada creada correctamente" : "La entrada no se ha creado"; //resultados
         return $result; //result con el string de resultado
     }elseif(count($errores)!==0){
         return $errores; //$errores con el array de errores
     }
+}
+
+function obtener_autor($id){
+    GLOBAL $connection;
+    if($connection && $id){
+        $query="SELECT nombre FROM usuarios WHERE id=$id";
+        $nombre_autor=mysqli_query($connection,$query);
+        $nombre_autor=mysqli_fetch_assoc($nombre_autor);
+        $nombre_autor=join('',$nombre_autor);
+    }else{$nombre_autor=false;}
+    return $nombre_autor;
+}
+
+//conseguir nombres de las categorias a partir de su id
+function obtener_categorias($string,$all=false){
+    GLOBAL $connection;
+    if($connection && is_string($string) && $all==false){
+        $query="SELECT nombre FROM categorias WHERE ";
+        $categorias_id=explode(',',$string);
+        
+        foreach($categorias_id as $key => $categoria_id){
+            $limit=(count($categorias_id)-1);
+       
+            $query.= ($limit!==$key) ? "id=$categoria_id OR " : "id=$categoria_id";
+        }
+        $categorias=mysqli_query($connection,$query);    
+           
+            while($row=mysqli_fetch_array($categorias)){
+                $nombre=$row[0];
+                $result[]=$nombre;
+            }
+           
+        $result=join(', ',$result);
+        
+        
+    }elseif($all==true){
+        $query="SELECT nombre FROM categorias";
+        $categorias=mysqli_query($connection,$query);
+        while($row=mysqli_fetch_array($categorias)){
+            $nombre=$row[0];
+            $result[]=$nombre;
+            
+        }
+    }
+
+    return $result;
 }
