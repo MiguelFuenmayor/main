@@ -1,7 +1,7 @@
 <div id='menu'>
         <ul>
         <a href="index.php"><li>Inicio</li></a>
-            <li>Categorias</li>
+            <li id="categorias">Categorias</li>
                 <?php require_once('views/menu_categorias.php');?>
             <a href="crear_entrada.php"><li>Crear una entrada</li></a>
         </ul>    

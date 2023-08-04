@@ -12,9 +12,9 @@ $img=$_FILES['imagen'];
 $resultado=crear_entrada($titulo,$contenido,$img,'1',$categorias); //subida
 
 //armado de consulta de regreso por GET
-if(is_string($resultado)){
+if(is_string($resultado)){ //exito
     header("refresh:1;http://localhost/php-sql/views/crear_entrada.php?resultado=$resultado");
-}elseif(is_array($resultado)){
+}elseif(is_array($resultado)){ //error
     session_start();
     $_SESSION['resultado']=$resultado;
     header("crear_entrada.php");

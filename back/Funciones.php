@@ -8,8 +8,8 @@ $connection= mysqli_connect('localhost','root','','blog');
 5. crear entrada (realizar el insert a partir de los datos de un form) 7
 6. Funcion de login (Con errores) 7
 7. funcion de registrarse (Con errores) 7
-8. generador visual de la entrada
-Además, debemos integrar las imagenes a partir de php/html (ya se pueden abrir las fotos)
+8. generador visual de la entrada 7
+Además, debemos integrar las imagenes a partir de php/html (ya se pueden abrir las fotos) 7
 */
 
 function obtener_entradas($id=false,$limit=false,$busqueda=false,$categoria=false){
@@ -94,10 +94,10 @@ function registro_login($mail,$contrasena,$nombre=false){ //Esta funcion deberia
                 $errores[] = ($mail_var==false) ? "mail invalido" : "";
                 $errores[] = ($contrasena_var==false) ? "contrasena invalida" : "";
                 $errores[] = ($nombre_var==false) ? "nombre invalido" : "";
-                return $errores;
+                $registro=$errores;
                 }
             }elseif($mail_verify==1 && $nombre!==false){ //si se está ingresando un nombre, y el mail existe
-            $registro="el mail ya está registrado!"; // este seria el mensaje
+            $registro[]="el mail ya está registrado!"; // este seria el mensaje
         }
         //DESDE AQUÍ SE EJECUTA UN LOGIN Y NO UN REGISTRO
         if($mail_verify==1 && $nombre==false && $mail_var && $contrasena_var){  //LOGIN IDENTIFICADO POR AUSENCIA DE NOMBRE Y MAIL DETECTADO
@@ -193,10 +193,7 @@ function obtener_categorias($string,$all=false){
                 $nombre=$row[0];
                 $result[]=$nombre;
             }
-           
         $result=join(', ',$result);
-        
-        
     }elseif($all==true){
         $query="SELECT nombre FROM categorias";
         $categorias=mysqli_query($connection,$query);
@@ -206,6 +203,5 @@ function obtener_categorias($string,$all=false){
             
         }
     }
-
     return $result;
 }
