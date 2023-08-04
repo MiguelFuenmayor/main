@@ -1,6 +1,7 @@
-<?php require_once('head.php');
-require_once('Menu.php');
-require_once('lateral.php'); ?>
+<?php
+require_once('views/head.php');
+require_once('views/Menu.php');
+require_once('views/lateral.php'); ?>
 <?php
 
 if(!empty($_SESSION['resultado'])){   //se reciben errores
@@ -28,8 +29,8 @@ if(!empty($_GET['resultado'])){  //se recibe resultado de la función
                     </div>
                 <?php endif; ?>
 
-      <?php require_once('form_crear_entrada.php'); ?> <!--FORMULARIO-->
+      <?php require_once('views/form_crear_entrada.php'); ?> <!--FORMULARIO-->
 </div><!-- FIN CONTENIDO -->
 
 
-<?php require_once('pie.php'); ?>
+<?php require_once('views/pie.php'); ?>
