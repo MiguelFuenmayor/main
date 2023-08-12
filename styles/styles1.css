@@ -1,0 +1,10 @@
+.grid-container{
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    grid-template-rows: repeat(4,1fr);
+    background-color: #333;
+}
+
+.grid-item{
+    background-color: #333;
+}

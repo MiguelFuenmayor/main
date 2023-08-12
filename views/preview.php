@@ -14,11 +14,11 @@ if(is_array($entradas)) :
  $autor=obtener_autor($entrada[2]);
  $categorias=obtener_categorias($entrada[1]);  ?>
 
-<div id="preview">
+<div class="lateral__preview">
     <a href="index?main=<?=$entrada[0]?>">
-    <img width="300px" src="<?=$entrada[5]?>" alt="img">
-    <h3><?=$entrada[3]?></h3>
-    <h6 id="info-preview"><?=$autor?> - <?=$entrada[6]?> - <?=$categorias?></h6>
+    <img class="preview-img" width="300px" src="<?=$entrada[5]?>" alt="img">
+    <h3 class="preview-title"><?=$entrada[3]?></h3>
+    <h6 class="info-preview"><?=$autor?> - <?=$entrada[6]?> - <?=$categorias?></h6>
     </a>
 </div>
 
