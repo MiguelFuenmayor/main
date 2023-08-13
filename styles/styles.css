@@ -2,6 +2,9 @@
 *{
     font-family: 'REM', 'Times New Roman', Times, serif;
 }
+.main-menu{
+    position: sticky;
+}
 .main-menu__list{
     display: flex;
     text-align: center;

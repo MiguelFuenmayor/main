@@ -8,7 +8,7 @@ $main=obtener_entradas($get);
 <div class="grid-contenido__main"> 
     <h2 class="main-title"><?=$main[3]?></h2>
     <img class="main-img" width="600px" src="<?=$main[5]?>" alt="img">
-    <h6 id="main-info"><?=$autor?> - <?=$main[6]?> - <?=$categorias?></h6>
+    <h6 class="main-info"><?=$autor?> - <?=$main[6]?> - <?=$categorias?></h6>
     <p class="main-desc"><?=$main[4]?></p>
 </div>
 <?php endif;?>

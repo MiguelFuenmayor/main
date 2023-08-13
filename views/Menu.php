@@ -1,11 +1,13 @@
-<div class="main-menu">
+<div class="grid-item main-menu">
         <ul class="main-menu__list">
         <li class="main-menu__list-item">
             <a href="index.php">
                 Inicio
             </a>
         </li>
-            <li class="main-menu__list-category main-menu__list-item">Categorias</li>
+            <li class="main-menu__list-category main-menu__list-item">
+                Categorias
+            </li>
                 <?php require_once('views/menu_categorias.php');?>
             <li class="main-menu__list-item"><a href="crear_entrada.php">Crear una entrada</a></li>
         </ul>    
