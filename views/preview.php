@@ -6,7 +6,7 @@ unset($_POST['search']);
 }elseif(!empty($_GET['category']))
 {$entradas=(empty($_GET['category'])) ? obtener_entradas() : obtener_entradas(false,false,false,$_GET['category']);
 unset($_GET['category']);}else{
-    $entradas=obtener_entradas(false,'6');
+    $entradas=obtener_entradas(false,'10');
 
 
 }

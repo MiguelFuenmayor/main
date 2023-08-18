@@ -13,8 +13,17 @@
         </ul>    
         <div class="main-menu__buscador">  <!--BUSCADOR-->
             <form method="POST" action="index.php">
-                <input type="text" class="buscador__input" name="search" placeholder="Inserte su busqueda"/>
+                <input autocomplete="off" type="text" class="buscador__input" name="search" placeholder="Inserte su busqueda"/>
                 <input type="submit" class="buscador__submit" value="Buscar"/>
             </form>
         </div> <!--Fin buscador-->
-    </div> <!--FIN MENU-->
+        <!--AQUI IRA LA INTERFAZ DE USUARIO-->
+        <?php if(empty($_SESSION['user'])) : ?>
+            <p class="main-menu__inicio_Sesion"><a href="user.php?accion=1">Iniciar sesión</a> o <a href="user.php?accion=2">Registrarse</a></p>
+        <?php elseif(!empty($_SESSION['user'])): ?>
+            <p><?=$_SESSION['user']['nombre'];?>
+            <form action="">
+            <input type="submit" name="outlogging" value="cerrar_sesion">
+            </form>
+        <?php endif;?>
+        </div> <!--FIN MENU-->

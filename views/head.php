@@ -2,7 +2,11 @@
 <html>
 <head>
     <?php 
-    require_once('back/funciones.php'); ?>
+    require_once('back/funciones.php'); 
+    require_once('back/login_registro.php');
+    
+
+    ?>
     <link rel="stylesheet" href="styles/styles1.css"/>
     <link rel="stylesheet" href="styles/normalize.css"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">

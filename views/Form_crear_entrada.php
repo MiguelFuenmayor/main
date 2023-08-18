@@ -1,4 +1,4 @@
-<form action="../back/upload_entrada.php" method="post" enctype="multipart/form-data"> <!--INICIO FORMULARIO-->
+<form action="" method="post" enctype="multipart/form-data"> <!--INICIO FORMULARIO-->
     <input type="text" required="required" 
         name="titulo" pattern="/[a-z A-Z0-9._-]+/" 
         minlength="10" maxlength="200" placeholder="Ingrese el titulo..."/> <br/> <!--SUBIDA DE TITULO-->

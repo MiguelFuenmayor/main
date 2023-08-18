@@ -57,63 +57,72 @@ Y AQUELLAS PARTES QUE COMPARTEN. EL RESTO DEL CODIGO FUNCIONA BIEN INCLUSO POR S
 **/ 
 
 function registro_login($mail,$contrasena,$nombre=false){ //Esta funcion deberia funcionar para ambos casos
+    //SE VERIFICA LA CONEXION
     GLOBAL $connection;
     $errores=false;
-    if($connection){ 
+    if(!empty($connection)){ 
         if($nombre!==false){$nombre=trim($nombre);}
-
+        settype($mail,'string');
         $mail=trim($mail);
-        $mail= settype($mail,'string');
-        $contrasena=settype($contrasena,'string');
+        
+    
+        
+        settype($contrasena,'string');
+        
         $contrasena=trim($contrasena);
         
-        //SE VERIFICA LA CONEXION
-        $mail_verify="SELECT mail FROM usuarios WHERE mail=$mail"; //QUERY==VERIFICACION DE EMAIL
+        $mail_verify="SELECT mail FROM usuarios WHERE mail='$mail'"; //QUERY==VERIFICACION DE EMAIL
         $mail_verify=mysqli_query($connection,$mail_verify);
         $mail_verify=mysqli_num_rows($mail_verify);
 
         //ESTAS VALIDACIONES LAS COLOCO AQUI PARA USARLAS DOS VECES AB-
-        $mail_var=filter_var($mail,FILTER_VALIDATE_EMAIL);
-        $contrasena_var = (strlen($contrasena)>8 && strlen($contrasena)<16) 
-        ? preg_match("/[a-zA-Z0-9._-]/",$contrasena) : false;
             //AQUI SE ESTÁ EJECUTANDO UN REGISTRO
         if($mail_verify==0 && $nombre!==false){ //REGISTRO IDENTIFICADO POR LA INT DE NOMBRE Y EMAIL NO DETECTADO
                //AB- ORIGINALMENTE IBA AQUI
-                $nombre_var=preg_match("/[a-zA-Z ]/",$nombre);
-            if( $mail_var //VALIDACION
-            && $contrasena_var //VALIDACION
-            && $nombre_var){
+                
+            if( preg_match("/[a-zA-Z0-9]+\@(gmail|hotmail|outlook)\.(com|net)/",$mail) //VALIDACION
+            && preg_match("/[a-zA-Z0-9._-]+/",$contrasena) //VALIDACION
+            && preg_match("/[a-zA-Z]+(\s[a-zA-Z]+)?/",$nombre) 
+            && preg_match("/[a-zA-Z]+(\s[a-zA-Z]+)?/",$nombre)){
+               
                 $contrasena=password_hash($contrasena,PASSWORD_DEFAULT);
                 //VALIDACION
-            $query="INSERT INTO usuarios VALUES(NULL,$nombre,$mail,$contrasena,CURDATE())"; //query de registro
+            $query="INSERT INTO usuarios VALUES(NULL,'$nombre','$mail','$contrasena',CURDATE())"; //query de registro
             $query=mysqli_query($connection,$query); //ejecución query
+            
             $registro = ($query==true) ? "registro completado!" : "registro invalido;("; //resultados de la query
             }else{
+                
                 //ARRAY DE ERRORES
                 $errores=array();
-                $errores[] = ($mail_var==false) ? "mail invalido" : "";
-                $errores[] = ($contrasena_var==false) ? "contrasena invalida" : "";
-                $errores[] = ($nombre_var==false) ? "nombre invalido" : "";
+                $errores[] = (preg_match("/[a-zA-Z0-9]+\@(gmail|hotmail|outlook)\.(com|net)/",$mail)==false) ? "mail invalido" : "";
+                $errores[] = (preg_match("/[a-zA-Z0-9._-]+/",$contrasena)==false) ? "contrasena invalida" : "";
+                $errores[] = (preg_match("/[a-zA-Z]+(\s[a-zA-Z]+)?/",$nombre)==false) ? "nombre invalido" : "";
                 $registro=$errores;
                 }
             }elseif($mail_verify==1 && $nombre!==false){ //si se está ingresando un nombre, y el mail existe
-            $registro[]="el mail ya está registrado!"; // este seria el mensaje
-        }
+            $registro[]="el mail ya está registrado!"; }// este seria el mensaje
         //DESDE AQUÍ SE EJECUTA UN LOGIN Y NO UN REGISTRO
-        if($mail_verify==1 && $nombre==false && $mail_var && $contrasena_var){  //LOGIN IDENTIFICADO POR AUSENCIA DE NOMBRE Y MAIL DETECTADO
-            $obtener_contra="SELECT contrasena FROM usuarios WHERE email==$mail";
+        if($mail_verify==1 && $nombre==false 
+        && preg_match("/[a-zA-Z0-9]+\@(gmail|hotmail|outlook)\.(com|net)/",$mail) 
+        && preg_match("/[a-zA-Z0-9._-]+/",$contrasena)){  //LOGIN IDENTIFICADO POR AUSENCIA DE NOMBRE Y MAIL DETECTADO
+            $obtener_contra="SELECT contrasena FROM usuarios WHERE mail='$mail'";
             $hash=mysqli_query($connection,$obtener_contra);
+            $hash=mysqli_fetch_assoc($hash);
+            $hash=$hash['contrasena'];
             $verify_password=password_verify($contrasena,$hash);
             if($verify_password){
-            $query="SELECT * FROM usuarios WHERE mail=$mail AND contrasena=$contrasena"; //query de login
-            
-            $registro=mysqli_query($connection,$query);  //ejecución query
-            $registro = (mysqli_num_rows($registro)==1) //si el registro es valido regresará un array con todos los datos
-                                                        //del usuario, caso contrario, delata contraseña invalida. todavia falta validacion de contraseña;
+            $query="SELECT id,nombre,mail,fecha FROM usuarios WHERE mail='$mail' AND contrasena='$hash';"; //query de login
+            //ejecución query
+            //si el registro es valido regresará un array con todos los datos
+            //del usuario, caso contrario, delata contraseña invalida. todavia falta validacion de contraseña;
+            $registro=mysqli_query($connection,$query); 
+            $registro = (mysqli_num_rows($registro)==1) 
+                                                        
             ? mysqli_fetch_assoc($registro) : "contraseña incorrecta imposible"; //resultados; este error deberia ser imposible
         }else{$registro="contraseña incorrecta";}
 
-        }elseif($mail_verify==0 && $nombre==false){$registro="mail no registrado";} //mail no registrado
+        }elseif($mail_verify==false && $nombre==false){$registro="mail no registrado";} //mail no registrado
 
     }else{$registro="La conección falló";} //si la conección falla jajaj
 
@@ -137,7 +146,7 @@ function crear_entrada($titulo,$contenido,$img,$usuario_id,$categorias){
     if($connection){  //verificación de la conección
         if($categorias){$entrada[]=$categorias;}else{$errores[]="categoria";} //asignación de los valores y revisión
         if($usuario_id){$entrada[]=$usuario_id;}else{$errores[]="usuario_id";}
-        if(strlen($titulo)<200 && preg_match("/[a-z A-Z0-9._-]/",$titulo)){$entrada[]=$titulo;}else{$errores[]="titulo";}
+        if(strlen($titulo)<200 && preg_match("/[a-z A-Z0-9._-]+/",$titulo)){$entrada[]=$titulo;}else{$errores[]="titulo";}
         if(is_string($contenido)){$entrada[]=$contenido;}else{$errores[]="contenido";}
         
         if(!empty($img) && is_dir('img_blog') ){

@@ -1,5 +1,6 @@
 <?php
 require_once('views/head.php');
+require_once('back/upload_entrada.php');
 require_once('views/Menu.php');
 require_once('views/lateral.php'); ?>
 <?php

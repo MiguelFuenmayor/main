@@ -8,6 +8,12 @@ $main=obtener_entradas($get);
 <div class="grid-contenido__main"> 
     <h2 class="main-title"><?=$main[3]?></h2>
     <img class="main-img" width="600px" src="<?=$main[5]?>" alt="img">
+    <?php if(!empty($_SESSION['user'])) : 
+    if($main[2]==$_SESSION['user']['id']): ?>
+      <a href="editar_entrada.php?id=<?=$main[0];?>"><p>Editar</p></a>
+    
+    <?Php endif; 
+    endif ?>
     <h6 class="main-info"><?=$autor?> - <?=$main[6]?> - <?=$categorias?></h6>
     <p class="main-desc"><?=$main[4]?></p>
 </div>
