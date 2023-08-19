@@ -1,5 +1,6 @@
 <?php
 $connection= mysqli_connect('localhost','root','','blog');
+
 /* Se necesitan las siguientes funciones
 1. Lista de las ultimas publicaciones 7
 2. Lista de todas las publicaciones  7
@@ -68,7 +69,7 @@ function registro_login($mail,$contrasena,$nombre=false){ //Esta funcion deberia
     
         
         settype($contrasena,'string');
-        
+            
         $contrasena=trim($contrasena);
         
         $mail_verify="SELECT mail FROM usuarios WHERE mail='$mail'"; //QUERY==VERIFICACION DE EMAIL
@@ -212,5 +213,46 @@ function obtener_categorias($string,$all=false){
             
         }
     }
+    return $result;
+}
+
+/*NUEVA FUNCIÓN: EDITAR Y ELIMINAR ENTRADAS
+DEBE PODER RECIBIR DATOS DESDE UN FORMULARIO Y ACTUALIZAR LOS EXISTENTES EN LA DB DE LA 
+ENTRADA CORRESPONDIENTE - O - RECIBIR LA ORDEN DE ELIMINAR LA ENTRADA CON CIERTA ID,
+BORRANDO SUS DATOS DE LA DB  
+SI DEVUELVE UN ARRAY SON ERRORES
+SI DEVUELVE BOOLEANO TRUE SE EFECTUÓ LA QUERY*/
+function editar_eliminar_entradas($accion,$id,$titulo=false,$desc=false,$categorias=false,$img_url=false){
+    GLOBAL $connection;
+    $result=false;
+    if($connection && $accion='ed' && !empty($titulo) && !empty($desc) && !empty($categorias) && !empty($img_url)){
+        $errores=[];
+        $titulo=trim($titulo);
+        $desc=trim($desc);
+        //Manipulacion de la imagen PARA EDITAR
+        $img_name=$img_url['name'];
+        $img_url="img_blog/$img_name";
+        move_uploaded_file($img_url['tmp_name'],$img_url);
+        // FIN manipulacion de la imagen PARA EDITAR
+        //validaciones PARA EDITAR
+        preg_match("/w+/",$titulo) ? $titulo : $errores[]="titulo" ;
+        preg_match("/w+/",$desc) ? $desc : $errores[]="desc";
+        preg_match("/.\.(jpg|jpeg)/",$img_url) ? $img_url : $errores[]="imagen";      
+        preg_match("/[0-9](,?[0-9])*/",$categorias) ? $categorias : $errores[]="categorias";
+        //query EDITAR
+           if(count($errores)==0){
+            $query="UPDATE entradas 
+            SET titulo='$titulo',descripcion='$desc',categorias='$categorias', img_url='$img_url'
+            WHERE id='$id'";
+            $result=mysqli_query($connection,$query);
+            $result==false ? $errores[]="query" : $result;
+           }
+           
+    }elseif($connection && $accion='el' && !empty($id)){
+        $query="DELETE FROM entradas WHERE id='$id'";
+        $result=mysqli_query($connection,$query);
+        $result==true ? $result : $errores[]="query";
+    }
+    $result= $result==true  ? $result : $errores;
     return $result;
 }

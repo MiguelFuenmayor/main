@@ -2,7 +2,7 @@
     <input type="text" required="required" 
         name="titulo" pattern="/[a-z A-Z0-9._-]+/" 
         minlength="10" maxlength="200" placeholder="Ingrese el titulo..."/> <br/> <!--SUBIDA DE TITULO-->
-    <textarea name="contenido" pattern="/[a-z A-Z0-9._-]+/"
+    <textarea name="contenido" 
     placeholder="Ingrese el contenido..." required="required"></textarea><br/> <!--SUBIDA DE CONTENIDO-->
     <input type="file" name="imagen"/><br/>  <!--SUBIDA DE IMAGEN-->
     <div> <!--SELECCION DE CATEGORIAS-->
