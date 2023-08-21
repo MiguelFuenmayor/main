@@ -13,7 +13,7 @@ $connection= mysqli_connect('localhost','root','','blog');
 Además, debemos integrar las imagenes a partir de php/html (ya se pueden abrir las fotos) 7
 */
 
-function obtener_entradas($id=false,$limit=false,$busqueda=false,$categoria=false){
+function obtener_entradas($id=false,$limit=false,$busqueda=false,$categoria=false,$user_id=false){
     GLOBAL $connection;
     if($connection){
         $query="SELECT * FROM entradas";
@@ -34,6 +34,10 @@ function obtener_entradas($id=false,$limit=false,$busqueda=false,$categoria=fals
             $query.=" LIMIT $limit";
         }
         
+        if($user_id!=false){
+            $query.=" WHERE usuario_id='$user_id'";
+        }
+
         $result=mysqli_query($connection,$query);
         
     }else{$result="ERROR";}
@@ -222,37 +226,47 @@ ENTRADA CORRESPONDIENTE - O - RECIBIR LA ORDEN DE ELIMINAR LA ENTRADA CON CIERTA
 BORRANDO SUS DATOS DE LA DB  
 SI DEVUELVE UN ARRAY SON ERRORES
 SI DEVUELVE BOOLEANO TRUE SE EFECTUÓ LA QUERY*/
-function editar_eliminar_entradas($accion,$id,$titulo=false,$desc=false,$categorias=false,$img_url=false){
+/**
+ * Summary of editar_eliminar_entradas
+ * @param mixed $id
+ * @param mixed $titulo
+ * @param mixed $desc
+ * @param mixed $categorias
+ * @param mixed $img_url
+ * @return array<string>|string
+ */
+function editar_eliminar_entradas($id,$titulo=NULL,$desc=NULL,$categorias=NULL,$img_url=NULL){
     GLOBAL $connection;
     $result=false;
-    if($connection && $accion='ed' && !empty($titulo) && !empty($desc) && !empty($categorias) && !empty($img_url)){
+    if($connection && !empty($titulo) && !empty($desc) && !empty($categorias) && !empty($img_url)){
+        $categorias=join(', ',$categorias);
         $errores=[];
         $titulo=trim($titulo);
         $desc=trim($desc);
         //Manipulacion de la imagen PARA EDITAR
         $img_name=$img_url['name'];
-        $img_url="img_blog/$img_name";
-        move_uploaded_file($img_url['tmp_name'],$img_url);
+        $img_name="img_blog/$img_name";
+        move_uploaded_file($img_url['tmp_name'],$img_name);
         // FIN manipulacion de la imagen PARA EDITAR
         //validaciones PARA EDITAR
-        preg_match("/w+/",$titulo) ? $titulo : $errores[]="titulo" ;
-        preg_match("/w+/",$desc) ? $desc : $errores[]="desc";
-        preg_match("/.\.(jpg|jpeg)/",$img_url) ? $img_url : $errores[]="imagen";      
+        preg_match("/[A-Za-z 0-9-_.\/\s,&]+/",$titulo) ? $titulo : $errores[]="titulo" ;
+        preg_match("/[A-Za-z 0-9-_.\/\s,&]+/",$desc) ? $desc : $errores[]="desc";
+        preg_match("/\/(jpg|jpeg)/",$img_url['type']) ? $img_url : $errores[]="imagen";      
         preg_match("/[0-9](,?[0-9])*/",$categorias) ? $categorias : $errores[]="categorias";
         //query EDITAR
            if(count($errores)==0){
             $query="UPDATE entradas 
-            SET titulo='$titulo',descripcion='$desc',categorias='$categorias', img_url='$img_url'
+            SET titulo='$titulo',entrada='$desc',categorias='$categorias', img_url='$img_name'
             WHERE id='$id'";
             $result=mysqli_query($connection,$query);
             $result==false ? $errores[]="query" : $result;
            }
            
-    }elseif($connection && $accion='el' && !empty($id)){
+    }elseif($connection && !empty($id)){
         $query="DELETE FROM entradas WHERE id='$id'";
         $result=mysqli_query($connection,$query);
         $result==true ? $result : $errores[]="query";
     }
-    $result= $result==true  ? $result : $errores;
+    $result= $result==true  ? "acción completada" : $errores;
     return $result;
 }

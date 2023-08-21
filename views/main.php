@@ -10,7 +10,7 @@ $main=obtener_entradas($get);
     <img class="main-img" width="600px" src="<?=$main[5]?>" alt="img">
     <?php if(!empty($_SESSION['user'])) : 
     if($main[2]==$_SESSION['user']['id']): ?>
-      <a href="editar_entrada.php?id=<?=$main[0];?>"><p>Editar</p></a>
+      <a href="editar_entrada.php?id=<?=$main[0]?>&autor-id=<?=$main[2]?>"><p>Editar</p></a>
     
     <?Php endif; 
     endif ?>

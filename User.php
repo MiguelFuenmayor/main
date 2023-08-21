@@ -36,10 +36,20 @@ require_once('views/lateral.php'); ?>
         <?php endif; ?> 
         <div>
             <?php
-                if(!empty($_GET['accion']) && $_GET['accion']==1){ require_once('views/login.php');
-                }elseif(!empty($_GET['accion']) && $_GET['accion']==2){require_once('views/registrarse.php');} 
+                if(!empty($_GET['accion']) && $_GET['accion']==1 && empty($_SESSION['user'])){ require_once('views/login.php');
+                }elseif(!empty($_GET['accion']) && $_GET['accion']==2 && empty($_SESSION['user'])){require_once('views/registrarse.php');} 
             ?>        
         </div>
+        <?php if(!empty($_SESSION['user'])):?>
+                <div> <!--INFO DEL USUARIO-->
+                    <h2><?=$_SESSION['user']['nombre']?></h2>
+                    <h3><?=$_SESSION['user']['mail']?></h3>
+                    <h6><?=$_SESSION['user']['fecha']?></h6>
+                </div>
+                <!--ENTRADAS DEL USUARIo-->
+                <?php require_once('views/Entradas_main.php'); ?>
+        <?php endif; ?>
+
     </div>    <!-- FIN CONTENIDO -->
 <?php  
 require_once('views/pie.php'); ?>

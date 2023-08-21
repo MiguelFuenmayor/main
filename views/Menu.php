@@ -21,7 +21,7 @@
         <?php if(empty($_SESSION['user'])) : ?>
             <p class="main-menu__inicio_Sesion"><a href="user.php?accion=1">Iniciar sesión</a> o <a href="user.php?accion=2">Registrarse</a></p>
         <?php elseif(!empty($_SESSION['user'])): ?>
-            <p><?=$_SESSION['user']['nombre'];?>
+            <a href="User.php"><p><?=$_SESSION['user']['nombre'];?></p></a>
             <form action="">
             <input type="submit" name="outlogging" value="cerrar_sesion">
             </form>
