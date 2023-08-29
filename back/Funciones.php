@@ -178,10 +178,11 @@ function crear_entrada($titulo,$contenido,$img,$usuario_id,$categorias){
     }
 }
 
-function obtener_autor($id){
+function obtener_autor($id,$completo='no completo'){
     GLOBAL $connection;
     if($connection && $id){
-        $query="SELECT nombre FROM usuarios WHERE id=$id";
+        $completo='no completo' ? $query="SELECT nombre FROM usuarios WHERE id=$id" : $query="SELECT id,nombre,mail,fecha FROM usuarios WHERE id=$id";
+        
         $nombre_autor=mysqli_query($connection,$query);
         $nombre_autor=mysqli_fetch_assoc($nombre_autor);
         $nombre_autor=join('',$nombre_autor);
@@ -269,4 +270,29 @@ function editar_eliminar_entradas($id,$titulo=NULL,$desc=NULL,$categorias=NULL,$
     }
     $result= $result==true  ? "acción completada" : $errores;
     return $result;
+}
+
+function editar_usuario($id,$nombre="",$mail="",$password1="",$password2=""){
+    GLOBAL $connection;
+    $errores=[];
+    $nombre=trim($nombre);
+    $mail=trim($mail);
+    $password1=trim($password1);
+    $password2=trim($password2);
+    $password1==$password2 ? $password=$password1 : $password="";
+    preg_match("/[A-Za-z]+(\s[A-Za-z])?/",$nombre) ? $nombre : $errores[]="$nombre";
+    preg_match("/[A-Za-z0-9_-]+\@(gmail|hotmail|outlook)\.(com|net)/",$mail) ? $mail : $errores[]="mail";
+    preg_match("/[A-Za-z0-9_\/\.\-]{8,16}/",$password) ? $password : $errores[]="password";
+    $password=password_hash($password,PASSWORD_DEFAULT);
+    $query="UPDATE usuarios SET ";
+    $nombre!=="" ? $query.="nombre='$nombre' " : NULL;
+    $mail!=="" ? $query.="mail='$mail' " : NULL;
+    $password!=="" ? $query.="password='$password'" : NULL;
+    $query.=" WHERE id=$id";
+    $query=mysqli_query($connection,$query);
+    $query==true ? NULL : $errores[]="query";
+    count($errores)==0 ? $result="Acción realizada" : $result=$errores;
+    return $result; 
+
+    
 }
